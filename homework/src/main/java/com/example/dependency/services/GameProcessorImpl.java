@@ -1,10 +1,10 @@
-package services;
+package com.example.dependency.services;
 
 
 
-import model.Equation;
-import model.GameResult;
-import model.Player;
+import com.example.dependency.model.Equation;
+import com.example.dependency.model.GameResult;
+import com.example.dependency.model.Player;
 
 import java.util.List;
 

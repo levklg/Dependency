@@ -1,4 +1,4 @@
-package appcontainer.api;
+package com.example.dependency.appcontainer.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

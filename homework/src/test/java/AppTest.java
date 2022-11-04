@@ -1,13 +1,19 @@
-import appcontainer.AppComponentsContainerImpl;
-import appcontainer.api.AppComponent;
-import appcontainer.api.AppComponentsContainerConfig;
-import config.AppConfig;
+import com.example.dependency.appcontainer.AppComponentsContainerImpl;
+import com.example.dependency.appcontainer.api.AppComponent;
+import com.example.dependency.appcontainer.api.AppComponentsContainerConfig;
+
+
+import com.example.dependency.config.AppConfig;
+import com.example.dependency.services.EquationPreparer;
+import com.example.dependency.services.EquationPreparerImpl;
+import com.example.dependency.services.IOService;
+import com.example.dependency.services.IOServiceStreams;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import services.*;
+
 
 import java.io.PrintStream;
 import java.lang.reflect.Modifier;
@@ -22,21 +28,22 @@ class AppTest {
 
     @DisplayName("Из контекста тремя способами должен корректно доставаться компонент с проставленными полями")
     @ParameterizedTest(name = "Достаем по: {0}")
-    @CsvSource(value = {"GameProcessor, ru.otus.services.GameProcessor",
-            "GameProcessorImpl, ru.otus.services.GameProcessor",
-            "gameProcessor, ru.otus.services.GameProcessor",
+    @CsvSource(value = {
 
-            "IOService, ru.otus.services.IOService",
-            "IOServiceStreams, ru.otus.services.IOService",
-            "ioService, ru.otus.services.IOService",
+            "IOService, com.example.dependency.services.IOService",
+            "IOServiceStreams, com.example.dependency.services.IOService",
+            "ioService, com.example.dependency.services.IOService",
 
-            "PlayerService, ru.otus.services.PlayerService",
-            "PlayerServiceImpl, ru.otus.services.PlayerService",
-            "playerService, ru.otus.services.PlayerService",
+            "PlayerService, com.example.dependency.services.PlayerService",
+            "PlayerServiceImpl, com.example.dependency.services.PlayerService",
+            "playerService, com.example.dependency.services.PlayerService",
 
-            "EquationPreparer, ru.otus.services.EquationPreparer",
-            "EquationPreparerImpl, ru.otus.services.EquationPreparer",
-            "equationPreparer, ru.otus.services.EquationPreparer"
+            "EquationPreparer, com.example.dependency.services.EquationPreparer",
+            "EquationPreparerImpl, com.example.dependency.services.EquationPreparer",
+            "equationPreparer, com.example.dependency.services.EquationPreparer"
+
+
+
     })
     public void shouldExtractFromContextCorrectComponentWithNotNullFields(String classNameOrBeanId, Class<?> rootClass) throws Exception {
         var ctx = new AppComponentsContainerImpl(AppConfig.class);
@@ -44,14 +51,15 @@ class AppTest {
         assertThat(classNameOrBeanId).isNotEmpty();
         Object component;
         if (classNameOrBeanId.charAt(0) == classNameOrBeanId.toUpperCase().charAt(0)) {
-            Class<?> gameProcessorClass = Class.forName("ru.otus.services." + classNameOrBeanId);
+            Class<?> gameProcessorClass = Class.forName("com.example.dependency.services." + classNameOrBeanId);
             assertThat(rootClass).isAssignableFrom(gameProcessorClass);
 
             component = ctx.getAppComponent(gameProcessorClass);
         } else {
             component = ctx.getAppComponent(classNameOrBeanId);
         }
-        assertThat(component).isNotNull();
+       assertThat(component).isNotNull();
+
         assertThat(rootClass).isAssignableFrom(component.getClass());
 
         var fields = Arrays.stream(component.getClass().getDeclaredFields())
@@ -61,8 +69,9 @@ class AppTest {
 
         for (var field: fields){
             var fieldValue = field.get(component);
-            assertThat(fieldValue).isNotNull().isInstanceOfAny(IOService.class, PlayerService.class,
-                    EquationPreparer.class, PrintStream.class, Scanner.class);
+
+          assertThat(fieldValue).isNotNull().isInstanceOfAny(com.example.dependency.services.IOService.class,com.example.dependency.services.PlayerService.class,
+                  com.example.dependency.services.EquationPreparer.class, PrintStream.class, Scanner.class);
         }
 
     }
@@ -79,10 +88,10 @@ class AppTest {
     public void shouldThrowExceptionWhenContainerContainsMoreThanOneOrNoneExpectedComponents() throws Exception {
         var ctx = new AppComponentsContainerImpl(ConfigWithTwoSameComponents.class);
 
-        assertThatCode(()-> ctx.getAppComponent(EquationPreparer.class))
-                .isInstanceOf(Exception.class);
+        assertThatCode(()-> ctx.getAppComponent(com.example.dependency.services.EquationPreparer.class))
+              .isInstanceOf(Exception.class);
 
-        assertThatCode(()-> ctx.getAppComponent(PlayerService.class))
+        assertThatCode(()-> ctx.getAppComponent(com.example.dependency.services.PlayerService.class))
                 .isInstanceOf(Exception.class);
     }
 

@@ -1,7 +1,7 @@
-package services;
+package com.example.dependency.services;
 
 
-import model.Player;
+import com.example.dependency.model.Player;
 
 public class PlayerServiceImpl implements PlayerService {
 

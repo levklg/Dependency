@@ -1,9 +1,10 @@
-package config;
+package com.example.dependency.config;
 
 
-import appcontainer.api.AppComponent;
-import appcontainer.api.AppComponentsContainerConfig;
-import services.*;
+import com.example.dependency.appcontainer.api.AppComponent;
+import com.example.dependency.appcontainer.api.AppComponentsContainerConfig;
+import com.example.dependency.services.*;
+
 
 @AppComponentsContainerConfig(order = 1)
 public class AppConfig {

@@ -1,8 +1,8 @@
-package services;
+package com.example.dependency.services;
 
 
 
-import model.Equation;
+import com.example.dependency.model.Equation;
 
 import java.util.List;
 

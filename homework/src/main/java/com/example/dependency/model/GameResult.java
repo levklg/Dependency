@@ -1,4 +1,4 @@
-package model;
+package com.example.dependency.model;
 
 public class GameResult {
     private static final String RESULT_PATTERN = "Уважаемый: %s. Всего было примеров: %d, отвечено верно: %d";

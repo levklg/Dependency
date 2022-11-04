@@ -1,4 +1,4 @@
-package services;
+package com.example.dependency.services;
 
 public interface IOService {
     void out(String message);

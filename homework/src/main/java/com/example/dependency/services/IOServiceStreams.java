@@ -1,4 +1,4 @@
-package services;
+package com.example.dependency.services;
 
 import java.io.InputStream;
 import java.io.PrintStream;

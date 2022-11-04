@@ -1,25 +1,28 @@
-package appcontainer;
+package com.example.dependency.appcontainer;
 
 
-import appcontainer.api.AppComponent;
-import appcontainer.api.AppComponentsContainer;
-import appcontainer.api.AppComponentsContainerConfig;
-import org.apache.commons.lang3.StringUtils;
-import services.*;
+import com.example.dependency.appcontainer.api.AppComponent;
+import com.example.dependency.appcontainer.api.AppComponentsContainer;
+import com.example.dependency.appcontainer.api.AppComponentsContainerConfig;
+import com.example.dependency.services.IOService;
 
 import java.lang.reflect.*;
+import java.text.Annotation;
 import java.util.*;
 
 public class AppComponentsContainerImpl implements AppComponentsContainer {
 
     private final List<Object> appComponents = new ArrayList<>();
     private final Map<String, Object> appComponentsByName = new HashMap<>();
+    private Map<AppComponent, Method> componentMap = new HashMap<>();
 
-    public AppComponentsContainerImpl(Class<?> initialConfigClass) {
+    public AppComponentsContainerImpl(Class<?> initialConfigClass) throws Exception {
+
         processConfig(initialConfigClass);
+
     }
 
-    private void processConfig(Class<?> configClass) {
+    private void processConfig(Class<?> configClass) throws Exception {
         checkConfigClass(configClass);
         // You code here...
         Object object = null;
@@ -45,16 +48,23 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
         for (Method method : methods) {
             if (method.isAnnotationPresent(AppComponent.class)) {
                 AppComponent appComponent = method.getAnnotation(AppComponent.class);
-                treeMethod.put(appComponent.order(), method);
+                if (componentMap.containsKey(appComponent)) {
+                    throw new Exception();
+                } else {
+                    componentMap.put(appComponent, method);
+                }
 
             }
+        }
+
+        for (Map.Entry<AppComponent, Method> entry : componentMap.entrySet()) {
+            treeMethod.put(entry.getKey().order(), entry.getValue());
 
         }
 
-        for (Map.Entry<Integer, Method> entry : treeMethod.entrySet()) {
-            runMethod(object, entry.getValue());
+        for (Map.Entry<Integer, Method> entry : treeMethod.entrySet()) {//componentMap.entrySet()
+            runMethod(object, entry.getValue(), this.appComponents);
         }
-
 
     }
 
@@ -65,10 +75,25 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
     }
 
     @Override
-    public <C> C getAppComponent(Class<C> componentClass) {
+    public <C> C getAppComponent(Class<C> componentClass) throws Exception {
+
+
+        duplicatesFind((Map<AppComponent, Method>) this.componentMap);
 
         int index = this.appComponents.size();
-        return (C) this.appComponents.get(index - 1);
+        List<Object> duplicates = new ArrayList<>();
+        for (Object ol : this.appComponents) {
+            if (duplicates.contains(ol)) {
+                throw new Exception();
+            } else duplicates.add(ol);
+        }
+
+        for (Object objectReturn : this.appComponents) {
+
+            if (componentClass.isInstance(objectReturn)) return (C) objectReturn;
+        }
+
+        return null;
     }
 
     @Override
@@ -83,7 +108,7 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
         return (C) o;
     }
 
-    public void runMethod(Object object, Method method) {
+    public void runMethod(Object object, Method method, List<Object> appComponents) {
 
         Class<?>[] parametrs = method.getParameterTypes();
         List<Object> listParam = new ArrayList<>();
@@ -106,5 +131,19 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
         }
 
     }
+
+    public boolean duplicatesFind(Map<AppComponent, Method> objectList) throws Exception {
+        List<Class<?>> duplicates = new ArrayList<>();
+
+        for (Map.Entry<AppComponent, Method> entry : componentMap.entrySet()) {
+
+            if (duplicates.contains(entry.getValue().getReturnType())) {
+                throw new Exception();
+            } else duplicates.add(entry.getValue().getReturnType());
+        }
+
+        return false;
+    }
+
 
 }

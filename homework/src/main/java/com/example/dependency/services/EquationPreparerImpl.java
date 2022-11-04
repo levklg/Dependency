@@ -1,10 +1,10 @@
-package services;
+package com.example.dependency.services;
 
 
 
-import model.DivisionEquation;
-import model.Equation;
-import model.MultiplicationEquation;
+import com.example.dependency.model.DivisionEquation;
+import com.example.dependency.model.Equation;
+import com.example.dependency.model.MultiplicationEquation;
 
 import java.util.ArrayList;
 import java.util.Collections;

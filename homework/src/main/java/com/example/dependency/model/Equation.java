@@ -1,4 +1,4 @@
-package model;
+package com.example.dependency.model;
 
 public abstract class Equation {
     protected final int leftPart;

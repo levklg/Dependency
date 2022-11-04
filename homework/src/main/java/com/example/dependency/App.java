@@ -1,4 +1,4 @@
-
+package com.example.dependency;
 
 /*
 В классе AppComponentsContainerImpl реализовать обработку, полученной в конструкторе конфигурации,
@@ -14,11 +14,10 @@
 PS Приложение представляет собой тренажер таблицы умножения
 */
 
-import appcontainer.AppComponentsContainerImpl;
-import appcontainer.api.AppComponentsContainer;
-import config.AppConfig;
-import services.GameProcessor;
-import services.GameProcessorImpl;
+import com.example.dependency.appcontainer.AppComponentsContainerImpl;
+import com.example.dependency.appcontainer.api.AppComponentsContainer;
+import com.example.dependency.config.AppConfig;
+import com.example.dependency.services.GameProcessor;
 
 public class App {
 
@@ -33,9 +32,9 @@ public class App {
         AppComponentsContainer container = new AppComponentsContainerImpl(AppConfig.class);
 
         // Приложение должно работать в каждом из указанных ниже вариантов
-        //  GameProcessor gameProcessor = container.getAppComponent(GameProcessor.class);
+          GameProcessor gameProcessor = container.getAppComponent(GameProcessor.class);
          //GameProcessor gameProcessor = container.getAppComponent(GameProcessorImpl.class);
-        GameProcessor gameProcessor = container.getAppComponent("gameProcessor");
+       // GameProcessor gameProcessor = container.getAppComponent("gameProcessor");
 
         gameProcessor.startGame();
     }
