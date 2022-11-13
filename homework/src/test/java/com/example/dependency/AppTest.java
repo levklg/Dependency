@@ -1,3 +1,5 @@
+package com.example.dependency;
+
 import com.example.dependency.appcontainer.AppComponentsContainerImpl;
 import com.example.dependency.appcontainer.api.AppComponent;
 import com.example.dependency.appcontainer.api.AppComponentsContainerConfig;
