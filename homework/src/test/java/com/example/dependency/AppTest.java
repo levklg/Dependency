@@ -60,9 +60,9 @@ class AppTest {
         } else {
             component = ctx.getAppComponent(classNameOrBeanId);
         }
-       assertThat(component).isNotNull();
+      assertThat(component).isNotNull();
 
-        assertThat(rootClass).isAssignableFrom(component.getClass());
+      assertThat(rootClass).isAssignableFrom(component.getClass());
 
         var fields = Arrays.stream(component.getClass().getDeclaredFields())
                 .filter(f -> !Modifier.isStatic(f.getModifiers()))
@@ -89,9 +89,10 @@ class AppTest {
     @Test
     public void shouldThrowExceptionWhenContainerContainsMoreThanOneOrNoneExpectedComponents() throws Exception {
         var ctx = new AppComponentsContainerImpl(ConfigWithTwoSameComponents.class);
-
+       var t = ctx.getAppComponent(com.example.dependency.services.EquationPreparer.class);
+       int a = 0;
         assertThatCode(()-> ctx.getAppComponent(com.example.dependency.services.EquationPreparer.class))
-              .isInstanceOf(Exception.class);
+             .isInstanceOf(Exception.class);
 
         assertThatCode(()-> ctx.getAppComponent(com.example.dependency.services.PlayerService.class))
                 .isInstanceOf(Exception.class);
