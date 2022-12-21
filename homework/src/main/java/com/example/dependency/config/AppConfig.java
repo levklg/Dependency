@@ -14,8 +14,7 @@ public class AppConfig {
         return new EquationPreparerImpl();
     }
 
-
-    @AppComponent(order = 2, name = "playerService")
+     @AppComponent(order = 2, name = "playerService")
     public PlayerService playerService(IOService ioService) {
         return new PlayerServiceImpl(ioService);
     }

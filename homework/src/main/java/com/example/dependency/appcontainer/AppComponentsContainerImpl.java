@@ -1,12 +1,10 @@
 package com.example.dependency.appcontainer;
 
 
-import com.example.dependency.App;
 import com.example.dependency.appcontainer.api.AppComponent;
 import com.example.dependency.appcontainer.api.AppComponentsContainer;
 import com.example.dependency.appcontainer.api.AppComponentsContainerConfig;
 
-import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,11 +14,8 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
 
     private final List<Object> appComponents = new ArrayList<>();
     private final Map<String, Object> appComponentsByName = new HashMap<>();
-    private Object object;
-    private TreeMap<AppComponent, Method> mapForSortingComponents;
 
     public AppComponentsContainerImpl(Class<?> initialConfigClass) throws Exception {
-
 
         processConfig(initialConfigClass);
 
@@ -29,26 +24,32 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
     private void processConfig(Class<?> configClass) throws Exception {
         checkConfigClass(configClass);
         // You code here...
-        object = getClassObject(configClass);
+        Object object = getClassObject(configClass);
         Method[] methods = configClass.getDeclaredMethods();
 
         Map<AppComponent, Method> mapComponent = Arrays.stream(methods).filter(method -> method.isAnnotationPresent(AppComponent.class))
                 .collect(Collectors.toMap(method -> method.getAnnotation(AppComponent.class), method -> method));
 
-        mapForSortingComponents = new TreeMap<>(Comparator.comparing(AppComponent::order));
-        mapForSortingComponents.putAll(mapComponent);
+        Map<AppComponent, Method> mapForSortingComponents = new HashMap<AppComponent, Method>();
+        Stream<Map.Entry<AppComponent, Method>> sorted = mapComponent.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(AppComponent::order)));
+        var listSortingComponents = sorted.collect(Collectors.toList());
 
-        List<String> listToSearchForTheSameName = new ArrayList<>();
-        for (Map.Entry<AppComponent, Method> entry : mapForSortingComponents.entrySet()) {
-            AppComponent appComponent = entry.getKey();
+        for (var value : listSortingComponents) {
+            AppComponent appComponent = value.getKey();
+            Method method = value.getValue();
+            var obj = object;
+            var component = runMethod(object, appComponent, method);
 
-            if (listToSearchForTheSameName.contains(appComponent.name())) {
-                System.err.println("В контексте не должно быть компонентов с одинаковым именем");
-                throw new Exception();
-            } else {
-                listToSearchForTheSameName.add(appComponent.name());
+            for (Map.Entry<String, Object> entrySecond : appComponentsByName.entrySet()) {
+                if (appComponentsByName.containsKey(appComponent.name())) {
+                    System.err.println("В контексте не должно быть компонентов с одинаковым именем");
+                    throw new Exception();
+                }
+
             }
-            listToSearchForTheSameName.add(appComponent.name());
+            appComponents.add(component);
+            appComponentsByName.put(appComponent.name(), component);
         }
 
     }
@@ -61,20 +62,14 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
 
     @Override
     public <C> C getAppComponent(Class<C> componentClass) throws Exception {
-
-        for (Map.Entry<AppComponent, Method> entry : mapForSortingComponents.entrySet()) {
-            AppComponent appComponent = entry.getKey();
-            Method method = entry.getValue();
-            var component = runMethod(object, appComponent, method);
-
-            for(var cmp : appComponents){
-              if(cmp.getClass().getSimpleName().equals(component.getClass().getSimpleName())){
-                  System.err.println("В контексте не должно быть дублирующих  компонентов");
-                  throw new Exception();
-              }
+        List<String> listForFindingDuplicates = new ArrayList<>();
+        for (Object o : this.appComponents) {
+            if (listForFindingDuplicates.contains(o.getClass().getSimpleName())) {
+                System.err.println("В контексте не должно быть дублирующих  компонентов");
+                throw new RuntimeException();
+            } else {
+                listForFindingDuplicates.add(o.getClass().getSimpleName());
             }
-              appComponents.add(component);
-
         }
 
         for (Object objectReturn : this.appComponents) {
@@ -89,24 +84,6 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
 
     @Override
     public <C> C getAppComponent(String componentName) throws Exception {
-
-        for (Map.Entry<AppComponent, Method> entry : mapForSortingComponents.entrySet()) {
-            AppComponent appComponent = entry.getKey();
-            Method method = entry.getValue();
-            var obj = object;
-            var component = runMethod(object, appComponent, method);
-
-            for (Map.Entry<String, Object> entrySecond : appComponentsByName.entrySet()) {
-                String keyAppComponent = entrySecond.getKey();
-                Object valueCompanent = entrySecond.getValue();
-               if(valueCompanent.getClass().getSimpleName().equals(component.getClass().getSimpleName())){
-                   System.err.println("В контексте не должно быть дублирующих  компонентов");
-                   throw new Exception();
-               }
-
-            }
-             appComponentsByName.put(appComponent.name(),component);
-        }
 
         Object o = null;
 
@@ -133,20 +110,9 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
                     System.err.println("Get null parametrs");
                     throw new RuntimeException();
                 } else {
-                    if (appComponents.size() > 0) {
-                        for (Object classСomponent : appComponents) {
-                            if (clzz.isInstance(classСomponent)) {
-                                args[index] = classСomponent;
-                            }
-                        }
-                    }
-
-                    if (appComponentsByName.size() > 0) {
-                        for (Map.Entry<String, Object> entry : appComponentsByName.entrySet()) {
-                            Object valueCompanent = entry.getValue();
-                            if (clzz.isInstance(valueCompanent)) {
-                                args[index] = valueCompanent;
-                            }
+                    for (Object classСomponent : appComponents) {
+                        if (clzz.isInstance(classСomponent)) {
+                            args[index] = classСomponent;
                         }
                     }
                 }

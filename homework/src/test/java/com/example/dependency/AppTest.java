@@ -89,8 +89,7 @@ class AppTest {
     @Test
     public void shouldThrowExceptionWhenContainerContainsMoreThanOneOrNoneExpectedComponents() throws Exception {
         var ctx = new AppComponentsContainerImpl(ConfigWithTwoSameComponents.class);
-       var t = ctx.getAppComponent(com.example.dependency.services.EquationPreparer.class);
-       int a = 0;
+
         assertThatCode(()-> ctx.getAppComponent(com.example.dependency.services.EquationPreparer.class))
              .isInstanceOf(Exception.class);
 
